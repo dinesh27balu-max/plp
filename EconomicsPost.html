@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>EconomicsPost</title>
+<style>
+  :root{
+    --accent: rgb(132,36,51);
+    --accent-soft: rgba(132,36,51,0.06);
+    --black: #000;
+    --muted: #6b6b6b;
+    --bg: #ffffff;
+    --surface: #fff;
+    --shadow: rgba(12,20,24,0.06);
+    --gap: 30px;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: var(--bg);
+    color: #111;
+    scroll-behavior: smooth;
+  }
+
+  .wrap{
+    width: 100%;
+    max-width: 1400px;
+    margin: 28px auto;
+    padding: 18px 40px;
+    box-sizing: border-box;
+  }
+
+  header.site-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+  }
+  .brand h1{
+    margin:0;
+    font-size:26px;
+    color: var(--accent);
+    letter-spacing:0.2px;
+  }
+  .brand .tag{ color:var(--muted); font-size:14px; margin-top:4px; }
+
+  nav.nav { display:flex; gap:20px; align-items:center; }
+  nav.nav button{
+    background:transparent; border:0; font-size:16px; cursor:pointer; padding:10px 8px; color:#111;
+  }
+  nav.nav button.active{ color:var(--accent); font-weight:700; border-bottom:3px solid var(--accent); padding-bottom:8px; }
+
+  /* Hero area */
+  .hero { display:block; margin-bottom: var(--gap); }
+  .why-title{ font-size:52px; line-height:1.02; margin:0 0 18px 0; font-weight:800; color:#111; }
+  .why-sub{ font-size:20px; color:var(--muted); margin:0 0 18px 0; max-width:none; }
+
+  /* Latest posts stacked vertically */
+  .latest-container{ display:flex; flex-direction:column; gap:14px; margin-bottom: var(--gap); }
+  .post-card{ background:var(--surface); border-radius:10px; padding:22px; box-shadow: 0 10px 28px var(--shadow); border:1px solid rgba(0,0,0,0.04); transition: transform .12s ease, box-shadow .12s ease, background .12s ease; cursor:pointer; }
+  .post-card:hover{ transform: translateY(-6px); box-shadow: 0 18px 40px rgba(10,18,22,0.08); background: rgba(0,0,0,0.01); }
+
+  .post-title{ margin:0 0 8px 0; font-size:26px; font-weight:800; color:#111; }
+  .post-meta{ font-size:14px; color:var(--muted); margin-bottom:12px; }
+  .post-type{ display:inline-block; padding:6px 8px; border-radius:6px; font-size:13px; font-weight:700; background:var(--accent-soft); color:var(--accent); margin-right:10px; }
+  .earlylearn-desc{ margin-top:14px; font-size:15px; color:var(--muted); line-height:1.45; }
+
+  /* Lists */
+  .list-page{ display:flex; flex-direction:column; gap:8px; min-height: calc(100vh - 240px); }
+  .list-item{ padding:18px; border-top:4px solid #000; transition: background .12s ease, transform .12s ease; background:transparent; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .list-item:hover{ background: var(--accent-soft); transform: translateY(-4px); }
+  .list-left{ flex:1; min-width:0; }
+  .list-title{ font-size:20px; font-weight:800; margin:0; color:#111; }
+  .list-meta{ font-size:13px; color:var(--muted); margin-top:6px; }
+
+  /* Article view */
+  .article{ padding-bottom:20px; }
+  .article-title{ font-size:36px; margin:0 0 8px 0; font-weight:900; border-bottom:4px solid #000; padding-bottom:8px; }
+  .article-meta{ color:var(--muted); font-size:13px; margin-top:8px; }
+  .article-content{ margin-top:20px; font-size:18px; line-height:1.7; color:#111; }
+
+  /* Admin bottom area when logged out */
+  .admin-bottom { margin-top: 36px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.04); display:flex; justify-content:flex-end; gap:12px; align-items:center; }
+  .admin-btn{ background:var(--accent); color:#fff; padding:10px 12px; border-radius:8px; font-weight:800; cursor:pointer; border:0; }
+  .admin-panel{ width:420px; max-width:92vw; background:#111; color:#fff; border-radius:12px; padding:14px; margin-top:10px; display:none; flex-direction:column; gap:10px; }
+  .admin-panel.visible{ display:flex; }
+  .admin-input{ padding:10px;border-radius:8px;border:0;width:100%; }
+  .admin-row{ display:flex; gap:8px; align-items:center; }
+
+  /* Admin dashboard */
+  .admin-dashboard { display:flex; flex-direction:column; gap:12px; }
+  .adm-nav { display:flex; gap:10px; align-items:center; margin-bottom:12px; }
+  .adm-nav button { padding:8px 12px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:#fff; cursor:pointer; }
+
+  /* Editor */
+  .editor-area{ min-height:320px; padding:12px; border-radius:8px; border:1px solid #e6e6e6; overflow:auto; background:#fff; color:#111; }
+
+  /* small shared styles */
+  .btn{ padding:8px 12px; border-radius:8px; border:0; cursor:pointer; font-weight:700; }
+  .btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,0.06); color:#fff; }
+  .btn-muted{ background:#f3f3f3; color:#111; }
+  .btn-danger{ background:#b82c2c; color:#fff; }
+
+  .footer-space{ height:88px; }
+
+  /* fixed logout (when admin) bottom-right */
+  .logout-fixed { position: fixed; right: 18px; bottom: 18px; z-index: 1600; display: none; }
+  .logout-fixed button { background: #111; color: #fff; border: 0; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-weight:700; }
+
+  /* center-bottom admin portal (visible only when admin) */
+  .admin-portal {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1600;
+    display: none;
+  }
+  .admin-portal button {
+    background: var(--accent);
+    color: #fff;
+    border: 0;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight:800;
+    cursor: pointer;
+  }
+
+  @media (max-width:920px){
+    .wrap{ padding:18px; }
+    .why-title{ font-size:36px; }
+    .post-title{ font-size:20px; }
+    .article-title{ font-size:28px; }
+    .admin-panel{ width:92vw; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" id="wrap">
+    <header class="site-header">
+      <div class="brand">
+        <h1>EconomicsPost</h1>
+        <div class="tag">economics essays & notes</div>
+      </div>
+
+      <nav class="nav" aria-label="main nav">
+        <button id="nav-home" class="active">Home</button>
+        <button id="nav-books">Books</button>
+        <button id="nav-blogs">Blogs</button>
+      </nav>
+    </header>
+
+    <main id="app"></main>
+
+    <!-- bottom admin area (shown on home when logged out) -->
+    <div id="admin-area-container" style="margin-top:24px;">
+      <div id="admin-bottom" class="admin-bottom" style="display:flex;justify-content:flex-end;">
+        <button id="admin-open-btn" class="admin-btn">Admin</button>
+
+        <div id="admin-panel" class="admin-panel" aria-hidden="true">
+          <div id="admin-logged-out">
+            <div style="font-weight:800;color:var(--accent);font-size:16px;">Admin access</div>
+            <div class="admin-row">
+              <input id="admin-pass" class="admin-input" type="password" placeholder="Enter admin password" />
+              <button id="admin-login" class="btn btn-muted">Log in</button>
+            </div>
+            <!-- client/demo note removed as requested -->
+          </div>
+
+          <div id="admin-logged-in" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-weight:800;color:var(--accent)">Admin</div>
+                <div style="color:#ddd;font-size:13px;">Signed in</div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button id="admin-to-dashboard" class="btn btn-muted">Open Dashboard</button>
+              </div>
+            </div>
+            <div style="font-size:13px;color:#ccc;">You can edit homepage text, create/edit/delete posts, and change dates.</div>
+            <div style="display:flex;justify-content:flex-end;">
+              <button id="admin-logout-bottom" class="btn btn-ghost">Logout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-space"></div>
+  </div>
+
+  <!-- fixed logout button (visible only when admin logged in and at top of page) -->
+  <div class="logout-fixed" id="logout-fixed">
+    <button id="logout-fixed-btn">Logout</button>
+  </div>
+
+  <!-- Admin portal center-bottom (visible only when admin) -->
+  <div class="admin-portal" id="admin-portal">
+    <button id="admin-portal-btn">Admin Portal</button>
+  </div>
+
+<script>
+/* Single-file SPA with working save + admin portal
+   Password (client-side): Incendioblast123*
+*/
+
+/* ---------- helpers & storage ---------- */
+const ADMIN_PASSWORD = "Incendioblast123*";
+const KEY_BLOGS = 'ep_blogs_final_v1';
+const KEY_BOOKS = 'ep_books_final_v1';
+const KEY_HOME = 'ep_home_final_v1';
+
+function idNow(){ return 'id' + Date.now(); }
+function todayISO(){ return new Date().toISOString(); }
+function isoToDDMMYY(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  if(Number.isNaN(d)) return '';
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yy = String(d.getFullYear()).slice(-2);
+  return `${dd}/${mm}/${yy}`;
+}
+function formatForInputISO(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  if(Number.isNaN(d)) return '';
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+function isoFromDateInput(value){
+  if(!value) return todayISO();
+  const d = new Date(value + 'T00:00:00');
+  return d.toISOString();
+}
+
+const initialHome = {
+  whyTitle: "Why I'm doing this",
+  whyDesc: "EconomicsPost is a curated place for my essays, notes, and book-style pieces. I want writing that is easy and pleasant to read — like an article in a well-edited publication. Use the admin panel to add posts, edit content, or change the claimed written date.",
+  earlyTitle: "About EarlyLearn",
+  earlyDesc: "EarlyLearn exists to reduce inequality in access to academic support. Many students benefit from paid private tuition while others who would benefit most cannot afford it. EarlyLearn provides free, volunteer tutoring to students eligible for contextual free school meals so those students can access similar support and compete on fairer terms.",
+  earlyLink: "https://en.wikipedia.org/wiki/Economics"
+};
+
+const initialData = {
+  blogs: [
+    { id: idNow(), title: "Welcome to EconomicsPost", content: "<p>This is the first blog entry. Edit with admin.</p>", createdAt: todayISO() }
+  ],
+  books: [
+    { id: idNow()+1, title: "Thinking about markets", content: "<p>Short book note. Edit with admin.</p>", createdAt: todayISO() }
+  ]
+};
+
+function loadAll(){
+  let b = localStorage.getItem(KEY_BLOGS);
+  let k = localStorage.getItem(KEY_BOOKS);
+  let h = localStorage.getItem(KEY_HOME);
+  if(!b || !k){
+    localStorage.setItem(KEY_BLOGS, JSON.stringify(initialData.blogs));
+    localStorage.setItem(KEY_BOOKS, JSON.stringify(initialData.books));
+    b = JSON.stringify(initialData.blogs);
+    k = JSON.stringify(initialData.books);
+  }
+  if(!h){
+    localStorage.setItem(KEY_HOME, JSON.stringify(initialHome));
+    h = JSON.stringify(initialHome);
+  }
+  try{
+    const parsedHome = JSON.parse(h);
+    // Ensure earlyLink exists if older data lacks it
+    if(!parsedHome.earlyLink) parsedHome.earlyLink = initialHome.earlyLink;
+    return { blogs: JSON.parse(b), books: JSON.parse(k), home: parsedHome };
+  } catch(e){
+    console.error('storage parse err', e);
+    localStorage.setItem(KEY_BLOGS, JSON.stringify(initialData.blogs));
+    localStorage.setItem(KEY_BOOKS, JSON.stringify(initialData.books));
+    localStorage.setItem(KEY_HOME, JSON.stringify(initialHome));
+    return { blogs: initialData.blogs, books: initialData.books, home: initialHome };
+  }
+}
+function saveAll(blogs, books){ localStorage.setItem(KEY_BLOGS, JSON.stringify(blogs)); localStorage.setItem(KEY_BOOKS, JSON.stringify(books)); }
+function saveHome(home){ localStorage.setItem(KEY_HOME, JSON.stringify(home)); }
+
+/* ---------- state & UI refs ---------- */
+const app = document.getElementById('app');
+const navHome = document.getElementById('nav-home');
+const navBooks = document.getElementById('nav-books');
+const navBlogs = document.getElementById('nav-blogs');
+
+navHome.addEventListener('click', ()=>navigate('home'));
+navBooks.addEventListener('click', ()=>navigate('books'));
+navBlogs.addEventListener('click', ()=>navigate('blogs'));
+
+const adminOpenBtn = document.getElementById('admin-open-btn');
+const adminPanel = document.getElementById('admin-panel');
+const adminLoginBtn = document.getElementById('admin-login');
+const adminPassInput = document.getElementById('admin-pass');
+const adminLoggedOut = document.getElementById('admin-logged-out');
+const adminLoggedIn = document.getElementById('admin-logged-in');
+const adminToDashboardBtn = document.getElementById('admin-to-dashboard');
+const adminLogoutBottom = document.getElementById('admin-logout-bottom');
+
+const logoutFixedWrap = document.getElementById('logout-fixed');
+const logoutFixedBtn = document.getElementById('logout-fixed-btn');
+
+const adminPortalWrap = document.getElementById('admin-portal');
+const adminPortalBtn = document.getElementById('admin-portal-btn');
+
+adminOpenBtn.addEventListener('click', ()=> adminPanel.classList.toggle('visible'));
+adminLoginBtn.addEventListener('click', attemptLogin);
+adminToDashboardBtn.addEventListener('click', ()=> { state.view='admin'; render(); adminPanel.classList.remove('visible'); window.scrollTo({top:0,behavior:'smooth'}); });
+adminLogoutBottom.addEventListener('click', adminLogout);
+logoutFixedBtn.addEventListener('click', adminLogout);
+adminPortalBtn.addEventListener('click', ()=> { state.view='admin'; render(); window.scrollTo({top:0,behavior:'smooth'}); });
+
+/* app state */
+let state = { view: 'home', type: null, id: null, admin: false };
+
+/* ---------- navigation & auth ---------- */
+function navigate(view){
+  state.view = view;
+  state.type = null;
+  state.id = null;
+  document.querySelectorAll('nav.nav button').forEach(b=>b.classList.remove('active'));
+  if(view === 'home') navHome.classList.add('active');
+  if(view === 'books') navBooks.classList.add('active');
+  if(view === 'blogs') navBlogs.classList.add('active');
+  render();
+}
+
+function attemptLogin(){
+  const pw = adminPassInput.value || '';
+  if(pw === ADMIN_PASSWORD){
+    state.admin = true;
+    adminLoggedOut.style.display = 'none';
+    adminLoggedIn.style.display = 'block';
+    adminOpenBtn.style.display = 'none';
+    updateLogoutFixedVisibility();
+    updateAdminPortalVisibility();
+    showToast('Admin signed in');
+    state.view = 'admin';
+    render();
+  } else {
+    alert('Incorrect password');
+  }
+}
+
+function adminLogout(){
+  state.admin = false;
+  adminLoggedOut.style.display = '';
+  adminLoggedIn.style.display = 'none';
+  adminOpenBtn.style.display = '';
+  logoutFixedWrap.style.display = 'none';
+  updateAdminPortalVisibility();
+  state.view = 'home';
+  render();
+  window.scrollTo({top:0, behavior:'instant'});
+  showToast('Logged out');
+}
+
+/* logout visibility on scroll: hide instantly when scrolling down */
+window.addEventListener('scroll', ()=>{
+  if(!state.admin) return;
+  if(window.scrollY > 10){
+    logoutFixedWrap.style.display = 'none';
+  } else {
+    updateLogoutFixedVisibility();
+  }
+});
+
+function updateLogoutFixedVisibility(){
+  if(state.admin && window.scrollY <= 10){
+    logoutFixedWrap.style.display = 'block';
+  } else {
+    logoutFixedWrap.style.display = 'none';
+  }
+}
+function updateAdminPortalVisibility(){
+  if(state.admin) adminPortalWrap.style.display = 'block';
+  else adminPortalWrap.style.display = 'none';
+}
+
+/* ---------- rendering ---------- */
+function render(){
+  const {blogs, books, home} = loadAll();
+
+  // Admin UI sync
+  if(state.admin){
+    adminLoggedOut.style.display = 'none';
+    adminLoggedIn.style.display = 'block';
+    adminOpenBtn.style.display = 'none';
+    updateLogoutFixedVisibility();
+    updateAdminPortalVisibility();
+  } else {
+    adminLoggedOut.style.display = '';
+    adminLoggedIn.style.display = 'none';
+    adminOpenBtn.style.display = '';
+    logoutFixedWrap.style.display = 'none';
+    updateAdminPortalVisibility();
+  }
+
+  if(state.view === 'home') renderHome(home, blogs, books);
+  else if(state.view === 'books') renderListPage('books', books);
+  else if(state.view === 'blogs') renderListPage('blogs', blogs);
+  else if(state.view === 'article' && state.type) {
+    const list = state.type === 'blogs' ? blogs : books;
+    const item = list.find(i => i.id === state.id);
+    renderArticle(state.type, item);
+  } else if(state.view === 'admin'){
+    renderAdminDashboard(home, blogs, books);
+  } else {
+    app.innerHTML = '<div class="post-card">Unknown view</div>';
+  }
+}
+
+/* Home layout */
+function renderHome(home, blogs, books){
+  const merged = [...blogs.map(b=>({...b, kind:'blog'})), ...books.map(b=>({...b, kind:'book'}))];
+  merged.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+  const latest3 = merged.slice(0,3);
+
+  app.innerHTML = `
+    <section class="hero">
+      <div class="why-title">${escapeHtml(home.whyTitle)}</div>
+      <div class="why-sub">${escapeHtml(home.whyDesc)}</div>
+    </section>
+
+    <section class="latest-container" id="latest-container">
+      ${latest3.length === 0 ? '<div class="post-card"><div style="font-size:16px;color:var(--muted);">No posts yet.</div></div>' : latest3.map(it=>`
+        <article class="post-card" data-id="${it.id}" data-type="${it.kind}">
+          <div class="post-title">${escapeHtml(it.title)}</div>
+          <div class="post-meta">
+            <span class="post-type">${it.kind === 'book' ? 'Book' : 'Blog'}</span>
+            <span>${isoToDDMMYY(it.createdAt)}</span>
+          </div>
+        </article>
+      `).join('')}
+    </section>
+
+    <section style="margin-top:60px;padding-top:20px;border-top:2px solid rgba(0,0,0,0.04);">
+      <h3 style="color:var(--accent);margin-bottom:10px;">${escapeHtml(home.earlyTitle)}</h3>
+      <p style="color:var(--muted);font-size:16px;line-height:1.6;">${escapeHtml(home.earlyDesc)}</p>
+      <div style="margin-top:10px;"><a href="${escapeAttr(home.earlyLink)}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;">Just Open EarlyLearn</a></div>
+    </section>
+  `;
+
+  // attach click handlers to article cards
+  document.querySelectorAll('.post-card').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.dataset.id;
+      const type = el.dataset.type === 'blog' ? 'blogs' : 'books';
+      state.view = 'article'; state.type = type; state.id = id;
+      document.querySelectorAll('nav.nav button').forEach(b=>b.classList.remove('active'));
+      if(type === 'blogs') navBlogs.classList.add('active'); else navBooks.classList.add('active');
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+}
+
+/* List page (books or blogs) */
+function renderListPage(type, items){
+  app.innerHTML = `
+    <section class="list-page card">
+      <h2 style="margin:0 0 8px 0;color:var(--accent);text-transform:capitalize">${type}</h2>
+      <div id="list-root">
+        ${items.length === 0 ? '<div style="color:var(--muted)">No items yet.</div>' : items.map(it=>`
+          <div class="list-item" data-id="${it.id}" data-type="${type}">
+            <div class="list-left">
+              <div class="list-title">${escapeHtml(it.title)}</div>
+              <div class="list-meta"><span class="post-type" style="background:transparent;color:var(--accent);padding:0;margin-right:8px">${type.slice(0,-1).charAt(0).toUpperCase()+type.slice(1,-1)}</span> ${isoToDDMMYY(it.createdAt)}</div>
+            </div>
+            <div style="flex-shrink:0;display:flex;align-items:center;gap:8px;">
+              ${state.admin ? `<button data-edit-id="${it.id}" class="btn btn-muted" title="Edit">Edit</button><button data-delete-id="${it.id}" class="btn btn-danger" title="Delete">Delete</button>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      ${state.admin ? `<div style="margin-top:14px;"><button id="add-new-${type}" class="btn btn-muted">+ New ${type.slice(0,-1)}</button></div>` : ''}
+    </section>
+  `;
+
+  // click handlers for open article
+  document.querySelectorAll('.list-item').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      if(e.target.closest('button')) return; // ignore button clicks
+      const id = el.dataset.id;
+      const typePage = el.dataset.type;
+      state.view = 'article'; state.type = typePage; state.id = id;
+      document.querySelectorAll('nav.nav button').forEach(b=>b.classList.remove('active'));
+      if(typePage === 'blogs') navBlogs.classList.add('active');
+      else navBooks.classList.add('active');
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  if(state.admin){
+    // edit buttons
+    document.querySelectorAll('button[data-edit-id]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const id = btn.getAttribute('data-edit-id');
+        const {blogs, books} = loadAll();
+        const list = (type === 'blogs') ? blogs : books;
+        const item = list.find(x=>x.id === id);
+        openEditor(type, item, false);
+      });
+    });
+    // delete buttons
+    document.querySelectorAll('button[data-delete-id]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const id = btn.getAttribute('data-delete-id');
+        if(!confirm('Delete this post? This cannot be undone.')) return;
+        const data = loadAll();
+        const newBlogs = data.blogs.filter(b=>b.id !== id);
+        const newBooks = data.books.filter(b=>b.id !== id);
+        saveAll(newBlogs, newBooks);
+        showToast('Deleted');
+        render();
+      });
+    });
+    // add new
+    const addBtn = document.getElementById(`add-new-${type}`);
+    if(addBtn){
+      addBtn.addEventListener('click', ()=>{
+        const newItem = { id: idNow(), title: `Untitled ${type === 'blogs' ? 'Blog' : 'Book'}`, content: "<p>Start writing...</p>", createdAt: todayISO() };
+        openEditor(type, newItem, true);
+      });
+    }
+  }
+}
+
+/* Article view */
+function renderArticle(type, item){
+  if(!item){
+    app.innerHTML = '<div class="post-card">Article not found</div>';
+    return;
+  }
+  app.innerHTML = `
+    <article class="card article">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1">
+          <div class="article-title">${escapeHtml(item.title)}</div>
+          <div class="article-meta"><span class="post-type">${type === 'books' ? 'Book' : 'Blog'}</span> ${isoToDDMMYY(item.createdAt)}</div>
+        </div>
+        <div style="flex-shrink:0;display:flex;gap:8px;align-items:center;">
+          <button id="back-btn" class="btn btn-muted">Back</button>
+          ${state.admin ? '<button id="edit-btn" class="btn btn-muted">Edit</button>' : ''}
+        </div>
+      </div>
+
+      <div id="article-body" class="article-content">${item.content}</div>
+    </article>
+  `;
+
+  document.getElementById('back-btn').addEventListener('click', ()=>{
+    state.view = (type === 'blogs') ? 'blogs' : 'books';
+    state.type = null; state.id = null;
+    document.querySelectorAll('nav.nav button').forEach(b=>b.classList.remove('active'));
+    if(type === 'blogs') navBlogs.classList.add('active'); else navBooks.classList.add('active');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  if(state.admin){
+    document.getElementById('edit-btn').addEventListener('click', ()=>{
+      openEditor(type, item, false);
+    });
+  }
+}
+
+/* Editor (create/edit) - admin only */
+function openEditor(type, item, isNew){
+  if(!state.admin){ alert('Admin required'); return; }
+
+  app.innerHTML = `
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:160px;">
+          <input id="editor-title" value="${escapeHtml(item.title)}" style="width:100%;padding:12px;border-radius:8px;border:1px solid #eee;font-size:18px;" />
+          <div style="margin-top:8px;color:var(--muted)">Created: <input id="editor-date" type="date" style="padding:6px;border-radius:6px;border:1px solid #eee;" value="${formatForInputISO(item.createdAt)}" /></div>
+        </div>
+        <div style="flex-shrink:0;display:flex;gap:8px;align-items:center;">
+          <button id="editor-cancel" class="btn btn-ghost">Cancel</button>
+          <button id="editor-delete" class="btn btn-danger">${isNew ? 'Discard' : 'Delete'}</button>
+          <button id="editor-save" class="btn btn-muted">Save</button>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div id="editor-area" class="editor-area" contenteditable="true">${item.content}</div>
+        <div style="margin-top:8px;color:var(--muted)">Change the written date above. Use Delete to remove this post permanently.</div>
+      </div>
+    </section>
+  `;
+
+  const editorArea = document.getElementById('editor-area');
+
+  // Cancel
+  document.getElementById('editor-cancel').addEventListener('click', ()=> {
+    if(confirm('Discard changes?')) render();
+  });
+
+  // Delete
+  document.getElementById('editor-delete').addEventListener('click', ()=>{
+    if(isNew){
+      if(confirm('Discard this new draft?')) render();
+      return;
+    }
+    if(!confirm('Delete this post permanently?')) return;
+    const data = loadAll();
+    const newBlogs = data.blogs.filter(b=>b.id !== item.id);
+    const newBooks = data.books.filter(b=>b.id !== item.id);
+    saveAll(newBlogs, newBooks);
+    showToast('Deleted');
+    render();
+  });
+
+  // Save (this is the critical code that ensures posts are actually saved)
+  document.getElementById('editor-save').addEventListener('click', ()=>{
+    const newTitle = document.getElementById('editor-title').value.trim() || 'Untitled';
+    const dateVal = document.getElementById('editor-date').value; // YYYY-MM-DD
+    const newCreatedAt = isoFromDateInput(dateVal);
+    const newContent = editorArea.innerHTML;
+
+    const data = loadAll();
+
+    if(type === 'blogs'){
+      const idx = data.blogs.findIndex(b=>b.id === item.id);
+      if(idx === -1){
+        // create new blog
+        data.blogs.push({ id: item.id, title: newTitle, content: newContent, createdAt: newCreatedAt });
+      } else {
+        // update existing
+        data.blogs[idx].title = newTitle;
+        data.blogs[idx].content = newContent;
+        data.blogs[idx].createdAt = newCreatedAt;
+      }
+    } else {
+      const idx = data.books.findIndex(b=>b.id === item.id);
+      if(idx === -1){
+        data.books.push({ id: item.id, title: newTitle, content: newContent, createdAt: newCreatedAt });
+      } else {
+        data.books[idx].title = newTitle;
+        data.books[idx].content = newContent;
+        data.books[idx].createdAt = newCreatedAt;
+      }
+    }
+
+    saveAll(data.blogs, data.books);
+    showToast('Saved');
+    // go to article view
+    state.view = 'article';
+    state.type = (type === 'blogs') ? 'blogs' : 'books';
+    state.id = item.id;
+    render();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* Admin dashboard (edit homepage, manage lists) */
+function renderAdminDashboard(home, blogs, books){
+  app.innerHTML = `
+    <section class="card admin-dashboard">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;color:var(--accent)">Admin Dashboard</h2>
+        <div>
+          <button id="back-home-btn" class="btn btn-muted">Back to Home</button>
+        </div>
+      </div>
+
+      <div class="adm-nav">
+        <button id="edit-homepage-btn">Edit Homepage</button>
+        <button id="manage-blogs-btn">Blogs</button>
+        <button id="manage-books-btn">Books</button>
+      </div>
+
+      <div id="admin-main-area"></div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;gap:8px;">
+        <button id="logout-bottom-dashboard" class="btn btn-ghost">Logout</button>
+      </div>
+    </section>
+  `;
+
+  document.getElementById('back-home-btn').addEventListener('click', ()=>{
+    state.view = 'home';
+    render();
+    updateLogoutFixedVisibility();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+
+  document.getElementById('logout-bottom-dashboard').addEventListener('click', adminLogout);
+  document.getElementById('edit-homepage-btn').addEventListener('click', ()=> renderHomepageEditor(home));
+  document.getElementById('manage-blogs-btn').addEventListener('click', ()=> renderAdminList('blogs', blogs));
+  document.getElementById('manage-books-btn').addEventListener('click', ()=> renderAdminList('books', books));
+}
+
+/* Edit homepage */
+function renderHomepageEditor(home){
+  const main = document.getElementById('admin-main-area');
+  main.innerHTML = `
+    <div>
+      <h3>Edit Homepage Content</h3>
+      <div style="margin-top:12px;">
+        <label style="font-weight:700;">Why I'm doing this (title)</label>
+        <input id="home-why-title" style="width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #ddd" value="${escapeAttr(home.whyTitle)}" />
+      </div>
+      <div style="margin-top:10px;">
+        <label style="font-weight:700;">Why I'm doing this (description)</label>
+        <textarea id="home-why-desc" style="width:100%;min-height:120px;padding:8px;border-radius:6px;border:1px solid #ddd;margin-top:6px">${escapeAttr(home.whyDesc)}</textarea>
+      </div>
+      <div style="margin-top:12px;">
+        <label style="font-weight:700;">EarlyLearn title</label>
+        <input id="home-early-title" style="width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #ddd" value="${escapeAttr(home.earlyTitle)}" />
+      </div>
+      <div style="margin-top:10px;">
+        <label style="font-weight:700;">EarlyLearn description</label>
+        <textarea id="home-early-desc" style="width:100%;min-height:120px;padding:8px;border-radius:6px;border:1px solid #ddd;margin-top:6px">${escapeAttr(home.earlyDesc)}</textarea>
+      </div>
+      <div style="margin-top:10px;">
+        <label style="font-weight:700;">EarlyLearn link (full URL)</label>
+        <input id="home-early-link" style="width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #ddd" value="${escapeAttr(home.earlyLink || '')}" placeholder="https://example.com" />
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;">
+        <button id="save-homepage" class="btn btn-muted">Save</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('save-homepage').addEventListener('click', ()=>{
+    const newHome = {
+      whyTitle: document.getElementById('home-why-title').value.trim() || initialHome.whyTitle,
+      whyDesc: document.getElementById('home-why-desc').value.trim() || initialHome.whyDesc,
+      earlyTitle: document.getElementById('home-early-title').value.trim() || initialHome.earlyTitle,
+      earlyDesc: document.getElementById('home-early-desc').value.trim() || initialHome.earlyDesc,
+      earlyLink: document.getElementById('home-early-link').value.trim() || initialHome.earlyLink
+    };
+    saveHome(newHome);
+    showToast('Homepage saved');
+    render();
+  });
+}
+
+/* Admin list management */
+function renderAdminList(type, items){
+  const main = document.getElementById('admin-main-area');
+  main.innerHTML = `
+    <div>
+      <h3>Manage ${type.charAt(0).toUpperCase() + type.slice(1)}</h3>
+      <div id="admin-list" style="margin-top:10px;"></div>
+      <div style="margin-top:12px;"><button id="admin-add-new" class="btn btn-muted">+ New ${type.slice(0,-1)}</button></div>
+    </div>
+  `;
+  const listRoot = document.getElementById('admin-list');
+  listRoot.innerHTML = items.map(it=>`
+    <div style="padding:10px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-weight:800">${escapeHtml(it.title)}</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:6px;">${isoToDDMMYY(it.createdAt)}</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button data-edit="${it.id}" class="btn btn-muted">Edit</button>
+        <button data-delete="${it.id}" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  `).join('');
+
+  // edit handlers
+  listRoot.querySelectorAll('[data-edit]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-edit');
+      const data = loadAll();
+      const list = (type === 'blogs') ? data.blogs : data.books;
+      const item = list.find(x=>x.id === id);
+      openEditor(type, item, false);
+    });
+  });
+
+  // delete handlers
+  listRoot.querySelectorAll('[data-delete]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-delete');
+      if(!confirm('Delete this post?')) return;
+      const data = loadAll();
+      const newBlogs = data.blogs.filter(b=>b.id !== id);
+      const newBooks = data.books.filter(b=>b.id !== id);
+      saveAll(newBlogs, newBooks);
+      showToast('Deleted');
+      render();
+    });
+  });
+
+  document.getElementById('admin-add-new').addEventListener('click', ()=>{
+    const newItem = { id: idNow(), title: `Untitled ${type === 'blogs' ? 'Blog' : 'Book'}`, content: "<p>Start writing...</p>", createdAt: todayISO() };
+    openEditor(type, newItem, true);
+  });
+}
+
+/* ---------- small utilities ---------- */
+function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function escapeAttr(s){ return (s+'').replace(/"/g,'&quot;'); }
+
+function showToast(msg){
+  const el = document.createElement('div');
+  el.textContent = msg;
+  Object.assign(el.style, { position:'fixed', right:'18px', bottom:'110px', background:'rgba(0,0,0,0.8)', color:'#fff', padding:'10px 14px', borderRadius:'8px', zIndex:1600 });
+  document.body.appendChild(el);
+  setTimeout(()=> el.style.opacity='0', 1400);
+  setTimeout(()=> el.remove(), 2000);
+}
+
+/* ---------- init ---------- */
+(function init(){
+  // ensure storage exists
+  loadAll();
+  render();
+
+  // hide admin panel clicking outside
+  document.addEventListener('click', (e)=>{
+    const panel = document.getElementById('admin-panel');
+    if(!panel) return;
+    const openBtn = document.getElementById('admin-open-btn');
+    if(panel.contains(e.target) || openBtn.contains(e.target)) return;
+    panel.classList.remove('visible');
+  });
+
+  // keyboard shortcut: Ctrl+Shift+A to toggle admin panel
+  document.addEventListener('keydown', (e)=>{
+    if(e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a'){
+      const panel = document.getElementById('admin-panel');
+      panel.classList.toggle('visible');
+    }
+  });
+
+  // when admin logs in, hide login password box content for security
+  adminPassInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') attemptLogin(); });
+
+})(); 
+</script>
+</body>
+</html>
